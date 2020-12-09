@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Web Blackjack</title>
+</head>
+
+<style>
+
+    body {
+        background-color: #1f4870;
+        color: white;
+        text-align: center;
+        font-family: Lucida Console, monospace;
+        font-weight: bold;
+        font-size: 2vh;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    button {
+        font-size: 1.5vh;;
+        margin: 0.5vh;
+        padding: 0.5vh;
+        width: 10vh;
+        font-family: Lucida Console, monospace;
+        font-weight: bold;
+        color: #1f4870;
+        background: white;
+    }
+
+    .addToTempBet {
+        font-size: 1.5vh;
+        color: white;
+        width: 8vh;
+        height: 8vh;
+        font-family: Lucida Console, monospace;
+        font-weight: bold;
+        border-radius: 100%;
+        border: none;
+        background-size: contain;
+        background-color: transparent;
+    }
+
+    .center {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .action {
+        font-size: 2vh;
+        font-weight: bold;
+        text-align: center;
+        color: white;
+        border-top: solid 2px;
+        border-bottom: solid 2px;
+        padding: 1vh;
+        margin-top: 3vh;
+    }
+
+    .card {
+        height: 20vh;
+        padding-left: 1vh;
+        padding-right: 1vh;
+        position: relative;
+        margin-left: -14vh;
+        float: left;
+    }
+
+    .cardFirst {
+        height: 20vh;
+        padding-left: 1vh;
+        padding-right: 1vh;
+        position: relative;
+        float: left;
+    }
+
+    .wrapper {
+        text-align: center;
+        padding: 3vh;
+    }
+
+    th {
+        font-family: Lucida Console, monospace;
+        font-size: 2vh;
+    }
+
+</style>
+
+<body>
+<script>
+    const source = new EventSource("/subscribe");
+    source.addEventListener("message", (event) => {
+        if (event.data != null) {
+            location.reload();
+        }
+    })
+</script>
+<div>
+    <table>
+        <tr>
+            <th th:text="'Chips: ' + ${playerChips}"></th>
+        </tr>
+    </table>
+    <div class="name" th:text="'Dealer (' + ${handValueDealer} + ')'">Dealer</div>
+    <table class="center" >
+        <tr class="center">
+            <th>
+                <img th:if="${dealerHand[0]} == null" src="/symbols/cards.png" height="170vh" style="padding-top: 5vh; opacity: 0.3;"/>
+                <img class="cardFirst" th:src="${dealerHand[0]}"/>
+                <img class="card" th:src="@{${dealerHand[1]}}"/>
+                <img class="card" th:src="@{${dealerHand[2]}}"/>
+                <img class="card" th:src="@{${dealerHand[3]}}"/>
+                <img class="card" th:src="@{${dealerHand[4]}}"/>
+                <img class="card" th:src="@{${dealerHand[5]}}"/>
+                <img class="card" th:src="@{${dealerHand[6]}}"/>
+                <img class="card" th:src="@{${dealerHand[7]}}"/>
+                <img class="card" th:src="@{${dealerHand[8]}}"/>
+            </th>
+        </tr>
+    </table>
+    <table class="center" style="padding-top: 3vh;">
+        <tr>
+            <th th:text="${tempPotStatus == false} ? ${'Pot: ' + playerPot} : ${'Pot: ' + tempPot}"></th>
+            <th th:if="${playingSplitHands} > 0" th:text="'Pot: ' + ${playerSplitPot}"></th>
+            </th>
+        </tr>
+        <tr>
+            <th th:if="${playingSplitHands} == 0">
+                <img th:if="${dealerHand[0]} == null" src="/symbols/cards.png" height="170vh" style="padding-top: 5vh; opacity: 0.3;"/>
+                <img class="cardFirst" th:src="${playerHand[0]}"/>
+                <img class="card" th:src="@{${playerHand[1]}}"/>
+                <img class="card" th:src="@{${playerHand[2]}}"/>
+                <img class="card" th:src="@{${playerHand[3]}}"/>
+                <img class="card" th:src="@{${playerHand[4]}}"/>
+                <img class="card" th:src="@{${playerHand[5]}}"/>
+                <img class="card" th:src="@{${playerHand[6]}}"/>
+                <img class="card" th:src="@{${playerHand[7]}}"/>
+                <img class="card" th:src="@{${playerHand[8]}}"/>
+            </th>
+            <th th:if="${playingSplitHands} > 0">
+                <img class="cardFirst" th:src="${playerSplitHand1[0]}"/>
+                <img class="card" th:src="@{${playerSplitHand1[1]}}"/>
+                <img class="card" th:src="@{${playerSplitHand1[2]}}"/>
+                <img class="card" th:src="@{${playerSplitHand1[3]}}"/>
+                <img class="card" th:src="@{${playerSplitHand1[4]}}"/>
+                <img class="card" th:src="@{${playerSplitHand1[5]}}"/>
+                <img class="card" th:src="@{${playerSplitHand1[6]}}"/>
+                <img class="card" th:src="@{${playerSplitHand1[7]}}"/>
+                <img class="card" th:src="@{${playerSplitHand1[8]}}"/>
+            </th>
+            <th th:if="${playingSplitHands} > 0">
+                <img class="cardFirst" th:src="${playerSplitHand2[0]}"/>
+                <img class="card" th:src="@{${playerSplitHand2[1]}}"/>
+                <img class="card" th:src="@{${playerSplitHand2[2]}}"/>
+                <img class="card" th:src="@{${playerSplitHand2[3]}}"/>
+                <img class="card" th:src="@{${playerSplitHand2[4]}}"/>
+                <img class="card" th:src="@{${playerSplitHand2[5]}}"/>
+                <img class="card" th:src="@{${playerSplitHand2[6]}}"/>
+                <img class="card" th:src="@{${playerSplitHand2[7]}}"/>
+                <img class="card" th:src="@{${playerSplitHand2[8]}}"/>
+            </th>
+        </tr>
+        <tr>
+            <th class="name" th:text="'Player (' + ${handValuePlayer} + ')'">Player</th>
+            <th th:if="${playingSplitHands} > 0"></th>
+        </tr>
+    </table>
+    <div class="action" th:text="${gameMessage}"></div>
+    <div class="wrapper" th:if="${!waitingForPlayerBet}">
+        <form method="post">
+            <button type="submit" formaction="/blackjack/hit" th:if="${hitAllowed}">Hit</button><button type="submit" formaction="/blackjack/stand" th:if="${standAllowed}">Stand</button><button type="submit" formaction="/blackjack/double" th:if="${doubleAllowed}">Double</button><button type="submit" formaction="/blackjack/split" th:if="${splitAllowed}">Split</button>
+        </form>
+        <br><br>
+        <form method="post">
+            <button type="submit" formaction="/blackjack/hint" th:text="'Hint (' + ${remainingHints} + ')'" th:if="${hintAllowed}">Hint</button>
+        </form>
+        <br>
+    </div>
+    <div class="wrapper" th:if="${waitingForPlayerBet}">
+        <form method="post">
+            <button type="submit" formaction="/tempBet/clear">Clear</button>
+            <button type="submit" formaction="/blackjack/placeBet">Bet</button>
+        </form>
+        <br>
+        <form method="post">
+            <button style="background-image: url('/symbols/chip1.svg');" class="addToTempBet" type="submit" formaction="/tempBet/5">5</button>
+            <button style="background-image: url('/symbols/chip2.svg');" class="addToTempBet" type="submit" formaction="/tempBet/10">10</button>
+            <button style="background-image: url('/symbols/chip3.svg');" class="addToTempBet" type="submit" formaction="/tempBet/25">25</button>
+            <button style="background-image: url('/symbols/chip4.svg');" class="addToTempBet" type="submit" formaction="/tempBet/50">50</button>
+            <button style="background-image: url('/symbols/chip5.svg');" class="addToTempBet" type="submit" formaction="/tempBet/100">100</button>
+            <button style="background-image: url('/symbols/chip6.svg');" class="addToTempBet" type="submit" formaction="/tempBet/250">250</button>
+            <button style="background-image: url('/symbols/chip7.svg');" class="addToTempBet" type="submit" formaction="/tempBet/500">500</button>
+        </form>
+    </div>
+</div>
+</body>
+
+</html>
